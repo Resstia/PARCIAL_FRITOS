@@ -16,10 +16,7 @@ const catConfig = {
   dulce:      { emoji: '🍬', img: 'assets/deditos.png',     label: 'Dulce Caribeño' },
 };
 
-// NOTA: Si la imagen de deditos sigue sin cargar, abre DevTools (F12) → Network
-// y revisa el nombre exacto del archivo. Nombres con tildes o ñ pueden causar
-// problemas según el sistema operativo. Renombra el archivo si es necesario.
-// Ejemplos de nombres seguros: deditos.png, bunuelo.png, carimanola.png
+
 
 // ===== ESTADO GLOBAL =====
 let currentUser = null;
@@ -145,7 +142,7 @@ window.addEventListener('load', () => {
   }
 });
 
-// ===== HELPER MENSAJES =====
+
 function showMsg(el, text, type) {
   el.textContent = text;
   el.className = 'auth-msg' + (type ? ' ' + type : '');
