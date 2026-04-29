@@ -136,6 +136,12 @@ window.addEventListener('load', () => {
     authToken = savedToken;
     currentUser = savedUser;
     enterApp(savedUser);
+
+    // Detectar QR — si la URL tiene un ancla tipo /#dona-petra
+    const ancla = window.location.hash.replace('#', '');
+    if (ancla) {
+      setTimeout(() => abrirPerfilPorSlug(ancla), 800);
+    }
   }
 });
 
@@ -343,6 +349,23 @@ function updateVoteDisplay(item, count) {
   el.innerHTML = '❤️ <span>' + count.toLocaleString() + '</span>';
 }
 
+// ===== ABRIR PERFIL DESDE QR =====
+const perfilesPorSlug = {
+  'dona-petra':     { name:'Doña Petra',     avatar:'👩🏾', bg:'linear-gradient(135deg,#d4874a,#f5c842)', specialty:'Arepas de huevo · Getsemaní',          bio:'Doña Petra lleva 45 años preparando las mejores arepas de huevo del barrio Getsemaní. Su receta es un secreto familiar transmitido de generación en generación, con una masa perfecta y un huevo siempre en su punto.', cats:'arepa' },
+  'dorita-gaviria': { name:'Dorita Gaviria', avatar:'👩🏽', bg:'linear-gradient(135deg,#c05e05,#e8820c)', specialty:'Arepas y empanadas · Centro Histórico', bio:'Cuarenta años haciendo las arepas y empanadas más crujientes del Centro Histórico. Dorita aprendió de su madre y su abuela, manteniendo vivo el saber ancestral cartagenero.', cats:'arepa,empanada' },
+  'marina-torres':  { name:'Marina Torres',  avatar:'👩🏿', bg:'linear-gradient(135deg,#b85d08,#d4874a)', specialty:'Patacones y fritos · Bocagrande',       bio:'Marina es la reina de los patacones en Bocagrande. Lleva 20 años perfeccionando su técnica de doble fritura, logrando patacones crujientes por fuera y suaves por dentro.', cats:'empanada,carimañola' },
+  'sr-luis':        { name:'Sr. Luis',       avatar:'🧑🏾', bg:'linear-gradient(135deg,#8B4513,#c05e05)', specialty:'Encurtidos · Plaza Trinidad',           bio:'El Sr. Luis es el único maestro encurtidor certificado de la Plaza Trinidad. Sus encurtidos de berenjena, zanahoria y ají son el complemento perfecto para cualquier frito cartagenero.', cats:'encurtido' },
+  'dona-rosa':      { name:'Doña Rosa',      avatar:'👩🏽', bg:'linear-gradient(135deg,#d4874a,#e8820c)', specialty:'Fritos y dulces caribeños · Getsemaní',  bio:'Doña Rosa combina como nadie los fritos salados y los dulces caribeños. Sus cocadas, alegrías y caballitos de palo son el broche de oro perfecto después de degustar sus fritos.', cats:'buñuelo,dulce' },
+  'dona-carmen':    { name:'Doña Carmen',    avatar:'👩🏿', bg:'linear-gradient(135deg,#a05c28,#f5c842)', specialty:'Carimañolas · Centro Histórico',         bio:'Doña Carmen es la guardiana de la carimañola tradicional. 38 años de experiencia le dan el toque preciso: yuca bien cocida, relleno de carne jugoso y fritura en el punto exacto.', cats:'carimañola' },
+};
+
+function abrirPerfilPorSlug(slug) {
+  const p = perfilesPorSlug[slug];
+  if (!p) return;
+  document.getElementById('cocineras')?.scrollIntoView({ behavior: 'smooth' });
+  setTimeout(() => openPerfil(p.name, p.avatar, p.bg, p.specialty, p.bio, p.cats), 400);
+}
+
 // ===== GENERADOR DE QR =====
 const qrNames = {
   'dona-petra': 'Doña Petra — Getsemaní',
@@ -359,7 +382,7 @@ function generarQR() {
 
   const canvas = document.getElementById('qr-canvas');
   canvas.innerHTML = '';
-  const url = 'https://fritomapp.co/puesto/' + val;
+  const url = 'https://fritomapp.onrender.com/#' + val;
   new QRCode(canvas, { text: url, width: 160, height: 160, colorDark: '#1A1208', colorLight: '#FDF5E6' });
 
   document.getElementById('qr-label').textContent = qrNames[val];
