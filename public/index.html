@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FritoMapp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-circle">F</div>
+      <h1>FritoMapp</h1>
+      <p>La tradición frita de Cartagena</p>
+    </div>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('registro')">Registrarse</button>
+      <button class="auth-tab" onclick="switchTab('login')">Iniciar Sesión</button>
+    </div>
+
+    <div class="auth-form active" id="form-registro">
+      <div class="auth-field">
+        <label>Nombre de usuario</label>
+        <input type="text" id="reg-user" placeholder="Ej: foodie_ctg" autocomplete="username">
+      </div>
+      <div class="auth-field">
+        <label>Contraseña</label>
+        <input type="password" id="reg-pass" placeholder="Mín. 8 caracteres" autocomplete="new-password" oninput="checkStrength(this.value)">
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+      </div>
+      <button class="auth-btn" onclick="doRegistro()">🫔 Crear cuenta</button>
+      <div class="auth-msg" id="msg-registro"></div>
+    </div>
+
+    <div class="auth-form" id="form-login">
+      <div class="auth-field">
+        <label>Nombre de usuario</label>
+        <input type="text" id="login-user" placeholder="Tu usuario" autocomplete="username">
+      </div>
+      <div class="auth-field">
+        <label>Contraseña</label>
+        <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="auth-btn" onclick="doLogin()">🔑 Ingresar</button>
+      <div class="auth-msg" id="msg-login"></div>
+    </div>
+  </div>
+</div>
+
+<div id="app-screen">
+
+  <nav>
+    <div class="nav-logo">
+      <div class="logo-circle">F</div>
+      <span class="logo-txt">FritoMapp</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#filter-section">Categorías</a></li>
+      <li><a href="#cocineras">Cocineras</a></li>
+      <li><a href="#top5">Top 5</a></li>
+    </ul>
+    <div class="nav-right">
+      <span id="user-greeting">Hola, <span id="username-display"></span></span>
+      <button class="btn-logout" onclick="logout()">Salir</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <video autoplay muted loop playsinline class="hero-video">
+        <source src="assets/header.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="hero-shadow-fade"></div>
+  </div>
+
+  <div class="intro">
+    <h1>Todo lo que necesitas </h1>
+    <p>FritoMapp reúne la tradición frita de Cartagena en una sola app</p>
+  </div>
+
+  <div class="filter-section" id="filter-section">
+    <div class="filter-title">Filtrar por categoría </div>
+    <div class="filter-chips">
+      <div class="chip active" onclick="filterCategory(this,'todos')">Todos</div>
+      <div class="chip" onclick="filterCategory(this,'arepa')">Arepa de Huevo</div>
+      <div class="chip" onclick="filterCategory(this,'empanada')">Empanadas</div>
+      <div class="chip" onclick="filterCategory(this,'carimañola')">Carimañolas</div>
+      <div class="chip" onclick="filterCategory(this,'patacon')">Patacones</div>
+      <div class="chip" onclick="filterCategory(this,'buñuelo')">Buñuelos</div>
+      <div class="chip" onclick="filterCategory(this,'bollito')">Bollitos</div>
+      <div class="chip" onclick="filterCategory(this,'encurtido')">Encurtidos</div>
+      <div class="chip" onclick="filterCategory(this,'dulce')">Dulces Caribeños</div>
+    </div>
+  </div>
+
+  <div class="barrios">
+    <div class="barrio-card" onclick="filterBarrio('Centro Histórico')">
+     <div class="barrio-bg" style="background-image:url('../assets/centro_historico.png')"><div class="barrio-emoji"></div></div>
+      <div class="barrio-info"><div class="barrio-name">Centro Histórico</div><div class="barrio-sub">Colinas de Cartagena</div></div>
+    </div>
+    <div class="barrio-card" onclick="filterBarrio('Plaza Trinidad')">
+      <div class="barrio-bg" style="background-image:url('../assets/plaza_trinidad.png')"><div class="barrio-emoji"></div></div>
+      <div class="barrio-info"><div class="barrio-name">Plaza Trinidad</div><div class="barrio-sub">Parque en Cartagena</div></div>
+    </div>
+    <div class="barrio-card" onclick="filterBarrio('Getsemaní')">
+      <div class="barrio-bg" style="background-image:url('../assets/getsemaní.png')"><div class="barrio-emoji"></div></div>
+      <div class="barrio-info"><div class="barrio-name">Getsemaní</div><div class="barrio-sub">Barrio Histórico</div></div>
+    </div>
+    <div class="barrio-card" onclick="filterBarrio('Bocagrande')">
+      <div class="barrio-bg" style="background-image:url('../assets/bocagrande.png')"><div class="barrio-emoji"></div></div>
+      <div class="barrio-info"><div class="barrio-name">Bocagrande</div><div class="barrio-sub">Barrio en Cartagena</div></div>
+    </div>
+  </div>
+
+  <div class="section-title" id="cocineras">Conoce a las cocineras </div>
+  <div class="cocineras-grid">
+
+    <div class="cocinera-card" data-category="arepa" data-barrio="Getsemaní">
+      <div class="cocinera-img" style="background-image:url('../assets/cocinera1.png')">
+        <div class="badge-years">45 años de tradición</div>
+        <div class="badge-rating">⭐ 4.4</div>
+      </div>
+      <div class="cocinera-body">
+        <div class="cocinera-name">Doña Petra</div>
+        <div class="cocinera-specialty">Arepas de huevo · Getsemaní</div>
+        <div class="cocinera-footer">
+          <span class="likes">❤️ 1.1k</span>
+          <button class="btn-perfil"
+            onclick="openPerfil('Doña Petra','👩🏾','linear-gradient(135deg,#d4874a,#f5c842)','Arepas de huevo · Getsemaní','Doña Petra lleva 45 años preparando las mejores arepas de huevo del barrio Getsemaní. Su receta es un secreto familiar transmitido de generación en generación, con una masa perfecta y un huevo siempre en su punto.','arepa')">
+            Ver perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cocinera-card" data-category="arepa empanada" data-barrio="Centro Histórico">
+      <div class="cocinera-img" style="background-image:url('../assets/cocinera2.png')">
+        <div class="badge-years">40 años de tradición</div>
+        <div class="badge-rating">⭐ 3.9</div>
+      </div>
+      <div class="cocinera-body">
+        <div class="cocinera-name">Dorita Gaviria</div>
+        <div class="cocinera-specialty">Arepas y empanadas</div>
+        <div class="cocinera-footer">
+          <span class="likes">❤️ 800</span>
+          <button class="btn-perfil"
+            onclick="openPerfil('Dorita Gaviria','👩🏽','linear-gradient(135deg,#c05e05,#e8820c)','Arepas y empanadas · Centro Histórico','Cuarenta años haciendo las arepas y empanadas más crujientes del Centro Histórico. Dorita aprendió de su madre y su abuela, manteniendo vivo el saber ancestral cartagenero.','arepa,empanada')">
+            Ver perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cocinera-card" data-category="patacon" data-barrio="Bocagrande">
+      <div class="cocinera-img" style="background-image:url('../assets/cocinera3.png')">
+        <div class="badge-years">20 años de tradición</div>
+        <div class="badge-rating">⭐ 4.3</div>
+      </div>
+      <div class="cocinera-body">
+        <div class="cocinera-name">Marina Torres</div>
+        <div class="cocinera-specialty">Patacones y fritos</div>
+        <div class="cocinera-footer">
+          <span class="likes">❤️ 650</span>
+          <button class="btn-perfil"
+            onclick="openPerfil('Marina Torres','👩🏿','linear-gradient(135deg,#b85d08,#d4874a)','Patacones y fritos · Bocagrande','Marina es la reina de los patacones en Bocagrande. Lleva 20 años perfeccionando su técnica de doble fritura, logrando patacones crujientes por fuera y suaves por dentro.','empanada,carimañola')">
+            Ver perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cocinera-card" data-category="encurtido" data-barrio="Plaza Trinidad">
+     <div class="cocinera-img" style="background-image:url('../assets/cocinera4.png')">
+        <span>🧑🏾</span>
+        <div class="badge-years">32 años de tradición</div>
+        <div class="badge-rating">⭐ 4.1</div>
+      </div>
+      <div class="cocinera-body">
+        <div class="cocinera-name">Sr. Luis</div>
+        <div class="cocinera-specialty">Encurtidos · Plaza Trinidad</div>
+        <div class="cocinera-footer">
+          <span class="likes">❤️ 2.1k</span>
+          <button class="btn-perfil"
+            onclick="openPerfil('Sr. Luis','🧑🏾','linear-gradient(135deg,#8B4513,#c05e05)','Encurtidos · Plaza Trinidad','El Sr. Luis es el único maestro encurtidor certificado de la Plaza Trinidad. Sus encurtidos de berenjena, zanahoria y ají son el complemento perfecto para cualquier frito cartagenero.','encurtido')">
+            Ver perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cocinera-card" data-category="dulce" data-barrio="Getsemaní">
+      <div class="cocinera-img" style="background-image:url('../assets/cocinera5.png')">
+        <div class="badge-years">28 años de tradición</div>
+        <div class="badge-rating">⭐ 4.5</div>
+      </div>
+      <div class="cocinera-body">
+        <div class="cocinera-name">Doña Rosa</div>
+        <div class="cocinera-specialty">Fritos y dulces caribeños</div>
+        <div class="cocinera-footer">
+          <span class="likes">❤️ 1.8k</span>
+          <button class="btn-perfil"
+            onclick="openPerfil('Doña Rosa','👩🏽','linear-gradient(135deg,#d4874a,#e8820c)','Fritos y dulces caribeños · Getsemaní','Doña Rosa combina como nadie los fritos salados y los dulces caribeños. Sus cocadas, alegrías y caballitos de palo son el broche de oro perfecto después de degustar sus fritos.','buñuelo,dulce')">
+            Ver perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cocinera-card" data-category="carimañola" data-barrio="Centro Histórico">
+      <div class="cocinera-img" style="background-image:url('../assets/cocinera6.png')">
+        <div class="badge-years">38 años de tradición</div>
+        <div class="badge-rating">⭐ 4.0</div>
+      </div>
+      <div class="cocinera-body">
+        <div class="cocinera-name">Doña Carmen</div>
+        <div class="cocinera-specialty">Carimañolas · Centro Histórico</div>
+        <div class="cocinera-footer">
+          <span class="likes">❤️ 1.4k</span>
+          <button class="btn-perfil"
+            onclick="openPerfil('Doña Carmen','👩🏿','linear-gradient(135deg,#a05c28,#f5c842)','Carimañolas · Centro Histórico','Doña Carmen es la guardiana de la carimañola tradicional. 38 años de experiencia le dan el toque preciso: yuca bien cocida, relleno de carne jugoso y fritura en el punto exacto.','carimañola')">
+            Ver perfil
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title" id="top5">Top 5 Fritos </div>
+  <div style="text-align:center; padding: 0 16px 10px;">
+    <div class="realtime-badge"><div class="realtime-dot"></div> Votos en tiempo real</div>
+  </div>
+  <div class="top5-section">
+    <div id="top5-container" class="top5-container">
+    </div>
+  </div>
+
+  <div class="section-title">Códigos QR de Puestos </div>
+  <div class="qr-section">
+    <div class="qr-container">
+      <p class="qr-intro">Genera el código QR único para cada puesto. Al escanearlo, lleva directo al perfil de la cocinera.</p>
+      <div class="qr-select-row">
+        <select class="qr-select" id="qr-select">
+          <option value="">— Selecciona un puesto —</option>
+          <option value="dona-petra">Doña Petra — Getsemaní</option>
+          <option value="dorita-gaviria">Dorita Gaviria — Centro Histórico</option>
+          <option value="marina-torres">Marina Torres — Bocagrande</option>
+          <option value="sr-luis">Sr. Luis — Plaza Trinidad</option>
+          <option value="dona-rosa">Doña Rosa — Getsemaní</option>
+          <option value="dona-carmen">Doña Carmen — Centro Histórico</option>
+        </select>
+        <button class="btn-generar" onclick="generarQR()">Generar QR</button>
+      </div>
+      <div class="qr-display" id="qr-display">
+        <div id="qr-canvas"></div>
+        <div class="qr-label" id="qr-label"></div>
+        <div class="qr-sublabel">Escanea para ver el perfil del puesto</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tradicion-section">
+    <div class="tradicion-container">
+      <div class="tradicion-grid">
+
+        <div class="tradicion-text">
+          <h2>La tradición de Cartagena 💃</h2>
+
+          <p>Desde hace generaciones, las <strong>matronas cartageneras</strong> han mantenido viva la tradición de los fritos en las calles de la ciudad amurallada, convirtiendo cada esquina en un espacio lleno de sabor, historia y cultura.</p>
+
+          <p>Sus recetas, transmitidas de generación en generación, representan un legado que ha perdurado en el tiempo, donde cada preparación conserva técnicas y secretos únicos que forman parte de la identidad del Caribe colombiano.</p>
+
+          <p>Cada arepa de huevo, cada carimañola y cada empanada llevan consigo décadas de saber ancestral, reflejando el amor, la dedicación y la experiencia de quienes han hecho de la cocina tradicional su forma de vida.</p>
+
+          <p>El <strong>Festival del Frito Cartagenero</strong> celebra este patrimonio culinario, reuniendo a las mejores cocineras en un espacio donde los sabores, los aromas y la tradición se convierten en protagonistas.</p>
+
+          <p>FritoMapp nace para <strong>preservar y difundir</strong> este legado, conectando a las personas con las matronas y permitiendo descubrir los sabores auténticos que hacen única a Cartagena.</p>
+
+          <p>Desde hace generaciones, las <strong>matronas cartageneras</strong> han mantenido viva la tradición de los fritos en las calles de la ciudad amurallada, convirtiendo cada esquina en un espacio lleno de sabor, historia y cultura.</p>
+
+          <p>Sus recetas, transmitidas de generación en generación, representan un legado que ha perdurado en el tiempo, donde cada preparación conserva técnicas y secretos únicos que forman parte de la identidad del Caribe colombiano.</p>
+
+          <div class="stats-row">
+            <div class="stat">
+              <div class="stat-num">50+</div>
+              <div class="stat-label">Puestos</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">30+</div>
+              <div class="stat-label">Matronas</div>
+            </div>
+            <div class="stat">
+              <div class="stat-num">10k</div>
+              <div class="stat-label">Views</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tradicion-images">
+          <img src="assets/bento1.png" class="img img1">
+          <img src="assets/bento2.png" class="img img2">
+          <img src="assets/bento3.png" class="img img3">
+          <img src="assets/bento4.png" class="img img4">
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Contenido</div>
+
+  <div class="contenido-section">
+    <div class="contenido-scroll-track">
+
+      <div class="contenido-scroll-card">
+        <video src="assets/video1.mp4" autoplay muted loop playsinline></video>
+      </div>
+
+      <div class="contenido-scroll-card">
+        <video src="assets/video2.mp4" autoplay muted loop playsinline></video>
+      </div>
+
+      <div class="contenido-scroll-card">
+        <video src="assets/video3.mp4" autoplay muted loop playsinline></video>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closePerfil(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-avatar" id="modal-avatar"></div>
+      <div>
+        <div class="modal-title" id="modal-title"></div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+
+    <div class="modal-menu-section">
+      <div class="modal-menu-title">Menú</div>
+      <div class="menu-grid" id="modal-menu-grid">
+      </div>
+    </div>
+
+    <button class="modal-close" onclick="closePerfil()">Cerrar perfil</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
