@@ -382,7 +382,7 @@ function generarQR() {
 
   const canvas = document.getElementById('qr-canvas');
   canvas.innerHTML = '';
-  const url = 'https://fritomapp.onrender.com/#' + val;
+  const url = 'https://parcialfritos-production.up.railway.app/#' + val;
   new QRCode(canvas, { text: url, width: 160, height: 160, colorDark: '#1A1208', colorLight: '#FDF5E6' });
 
   document.getElementById('qr-label').textContent = qrNames[val];
